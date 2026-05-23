@@ -10,16 +10,8 @@ tags:
   - personal
   - Who am i
 ---
-
 Hello 👋
 
-I’m a Cybersecurity Engineer passionate about securing systems, analyzing vulnerabilities, and exploring modern security technologies.
-
-This blog is where I share:
-- Cybersecurity research
-- Ethical hacking knowledge
-- CTF write-ups
-- Security tools and labs
-- Personal learning experiences
-
-I enjoy continuous learning, problem solving, and helping others grow in the cybersecurity field.
+I’m Samira Gabr, a Cybersecurity Engineer passionate about reverse engineering, automotive security, penetration testing, and bug hunting.
+This blog is where I share my learning journey, security research, write-ups, tools, and experiences in cybersecurity.
+I enjoy exploring how systems work, discovering vulnerabilities, and continuously learning new security techniques.
