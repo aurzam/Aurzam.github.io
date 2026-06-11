@@ -1,8 +1,7 @@
 ---
-
 title: "Blockchain Fundamentals: Concepts, Architecture, and Oracle Blockchain Platform"
 date: "2026-06-11"
-thumbnail: assets/img/thumbnail/Bitcoin.png
+thumbnail: /assets/img/thumbnail/Bitcoin.png
 tags:
 - blockchain
 - oracle blockchain platform
@@ -15,35 +14,29 @@ bookmark: true
 ### Why Blockchain?
 
 #### Problems with Centralized Systems
-
 * Traditional financial systems rely on a central authority to verify transactions and prevent double spending.
 * Overdependence on a central authority creates a single point of failure.
 * If the central authority is compromised, it can result in large-scale security breaches and financial losses.
 
 #### Blockchain as a Solution
-
 * Blockchain verifies the authenticity of transactions without relying solely on a central authority.
 * It helps prevent double spending by maintaining a transparent and tamper-resistant ledger.
 * Every transaction is validated and recorded across the network.
 
 #### Security in Cross-Border Transactions
-
 * Banking institutions are connected through centralized networks for international money transfers.
 * Hackers can use malware to gain unauthorized access to banking systems and send fraudulent transaction messages.
 * Such attacks can lead to theft of funds and unauthorized transfers.
 
 #### How Blockchain Prevents Fraud
-
 * Blockchain makes fraudulent activities easier to detect and prevent.
 * Data stored on the blockchain is extremely difficult to alter or manipulate.
 * All transaction details are:
-
   * Encrypted
   * Hashed
   * Securely recorded
 
 #### Key Benefits of Blockchain
-
 * Eliminates dependency on third-party centralized systems.
 * Reduces operational and transaction costs.
 * Enhances security and resistance to hacking.
@@ -56,21 +49,17 @@ bookmark: true
 ### What is Blockchain?
 
 #### Definition
-
 * Blockchain is a **chain of blocks** containing records of transactions.
 * In computer science terms, it is similar to a **linked list**, where blocks are connected sequentially.
 * A blockchain consists of a series of blocks with **unalterable and cryptographically secured records**.
 
 #### Structure of a Block
-
 * A block stores multiple transactions.
 * Transactions are encapsulated within the block and cannot be edited once recorded.
 * Each transaction is cryptographically signed for security and authenticity.
 
 #### Transaction Data
-
 A transaction may contain details such as:
-
 * Sender address
 * Receiver address
 * Transaction amount
@@ -80,7 +69,6 @@ A transaction may contain details such as:
 **Example:** Alice sends money to John.
 
 #### Block Size
-
 * Every block has a fixed size.
 * A block can store only a limited number of transactions.
 * When a block becomes full, a new block is created.
@@ -120,7 +108,6 @@ A transaction may contain details such as:
 ---
 
 ### How Blocks Form a Blockchain
-
 1. Transactions are collected into a block.
 2. The block receives a unique hash.
 3. The block stores the hash of the previous block.
