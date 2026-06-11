@@ -71,7 +71,7 @@ This centralized model has inherent vulnerabilities:
 
 ---
 
-## Discussing the Benefits of Blockchain
+### Discussing the Benefits of Blockchain
 
 The technical features of blockchain translate into powerful business and operational advantages:
 
@@ -83,7 +83,7 @@ The technical features of blockchain translate into powerful business and operat
 
 ---
 
-## Oracle's Solution for Blockchain
+### Oracle's Solution for Blockchain
 
 Oracle Blockchain Platform is not a public blockchain like Bitcoin or Ethereum. It is an enterprise-grade **Blockchain-as-a-Service (BaaS)** offering built upon the open-source **Hyperledger Fabric** framework. This is a **permissioned blockchain**, designed specifically for business-to-business (B2B) use cases.
 
@@ -463,7 +463,9 @@ While "blockchain" describes the general technology, "Bitcoin" refers to a speci
 *   Bitcoin uses the **Proof-of-Work** consensus algorithm. Miners compete to solve the hashing puzzle.
 *   The successful miner is rewarded with newly created bitcoin (the "block reward") and the transaction fees from the block.
 *   A key part of Bitcoin's monetary policy is the **Halving**. The block reward is programmed to be cut in half approximately every four years (every 210,000 blocks). It started at 50 BTC, dropped to 25, then 12.5, 6.25, and so on. This programmatic reduction in supply ensures that the total number of bitcoins will never exceed 21 million, making it a deflationary asset.
+
 ---
+
 ## 7. Overview of Blockchain Platforms
 
 ### Describing Blockchain Platforms
