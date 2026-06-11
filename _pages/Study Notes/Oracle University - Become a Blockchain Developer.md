@@ -108,7 +108,9 @@ Oracle's primary value is not in reinventing blockchain but in packaging Hyperle
 *   **Pre-Assembled & Managed:** It provides a "click-to-deploy" console that automates the setup of all Fabric components (Peers, Orderers, MSPs) and handles the underlying infrastructure, security patches, backups, and monitoring.
 *   **Deep Integration with Oracle Ecosystem:** This is the platform's killer feature. It is designed to seamlessly connect blockchain events with enterprise business processes. It offers rich **REST APIs** and pre-built adapters for easy integration with Oracle's extensive suite of SaaS (ERP, SCM Cloud) and PaaS (Database, Integration Cloud) products. For example, a "Goods Received" event on the blockchain can automatically trigger an "Initiate Payment" workflow in Oracle ERP Cloud.
 *   **Enterprise-Grade Security & Identity:** The platform integrates with Oracle Identity and Access Management (IDCS) to provide a unified console for managing the digital identities and permissions of all network participants, simplifying governance in complex multi-organization consortia.
+
 ---
+
 ## 3. Key Blockchain Features
 
 ### Describing Immutability
@@ -217,7 +219,9 @@ Blockchain security is not a single feature but a holistic, multi-layered defens
     *   The transparent nature of the ledger (even within permissioned groups) means that any malicious or anomalous activity is visible to all participants, allowing for rapid detection and response.
 
 **Why It Matters:** This combined security model makes a well-designed blockchain exceptionally resilient to the types of attacks that plague traditional centralized systems (e.g., unauthorized database edits, server downtime, single-point data breaches). It creates a system where trust is not placed in a single entity but is an emergent property guaranteed by the verifiable and robust nature of the system itself.
+
 ---
+
 ## 4. Core Components of Blockchain
 
 ### Describing Blocks
@@ -335,7 +339,9 @@ This loop of hashing and checking is a brute-force search that happens trillions
 The genius of PoW is its asymmetry: finding the solution is incredibly difficult, but **verifying it is trivial**. Any other node can take the broadcasted block, run the hash function just *once* with the provided nonce, and instantly confirm that the hash is valid.
 
 **Why It Matters:** PoW converts raw energy into cryptographic security. It makes the cost of adding a block high, but the cost of verifying it low. This economic principle secures the network by making the cost of an attack (re-mining a large portion of the chain) astronomically higher than any potential reward.
+
 ---
+
 ## 5. How Blockchain Works
 
 ### Introduction to Blockchain Wallet
