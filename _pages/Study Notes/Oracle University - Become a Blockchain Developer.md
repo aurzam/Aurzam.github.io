@@ -58,7 +58,7 @@ A block is not just a list of transactions; it is a complex data structure compo
 
 ---
 
-## Why Blockchain? The Problem it Solves
+### Why Blockchain? The Problem it Solves
 
 Traditional digital systems are built on a **centralized trust model**. They rely on a trusted intermediary—a bank, a government agency, a social media company—to maintain the ledger, validate transactions, and enforce rules.
 
