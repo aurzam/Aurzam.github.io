@@ -614,3 +614,656 @@ Hyperledger Fabric is often the chosen platform for serious enterprise and conso
 4.  **Flexibility and Modularity:** Fabric is not one-size-fits-all. Its modular architecture allows enterprises to plug in their preferred components for identity (MSP), consensus (Ordering Service), and world state databases (LevelDB/CouchDB), tailoring the platform to their specific needs.
 
 5.  **No Required Cryptocurrency:** Business transactions should not be subject to the volatility of a public cryptocurrency. Fabric's design, which does not require a native coin for its operation, removes this significant barrier to enterprise adoption, simplifying accounting and reducing regulatory risk.
+
+---
+
+## 1. Blockchain: Overview and Key Features
+
+This lesson provides a foundational overview of blockchain technology, its core components, key features, and the primary use cases it is designed to address.
+
+### What is a Blockchain? A Use Case Perspective
+
+To understand blockchain, consider a traditional financial transaction: one person sending money to another. This process typically requires a trusted third-party intermediary, such as a bank.
+
+**The Traditional Model:**
+*   **Reliance on an Intermediary:** The bank acts as the central record-keeper, validating the transaction and updating the ledgers of both parties.
+*   **Inefficiencies:** This reliance introduces potential drawbacks:
+    *   **Fees:** Banks charge transaction fees.
+    *   **Latency:** The speed of the transfer is limited by the bank's operational hours and processes. International transfers, for example, can take several days.
+
+**The Blockchain Model:**
+Blockchain technology proposes a new model by eliminating the need for a central intermediary.
+
+*   **Peer-to-Peer Network:** Instead of a central authority, the participants of the network themselves act as distributed record-keepers. Each participant, or **node**, maintains a copy of the transaction ledger.
+*   **Goals:** The primary goals of this model are to:
+    *   Reduce or eliminate third-party transaction fees.
+    *   Ensure data consistency and prevent issues like "double-spending" through a collective validation process.
+    *   Maintain the security of transactions within a distributed network.
+
+---
+
+### Blockchain Overview: Core Components
+
+A **blockchain** is fundamentally a **distributed database of immutable records**, where each node in the participating network maintains a copy of the entire database.
+
+#### Blocks: The Unit of Storage
+
+A block is the basic container for data on the blockchain. It is a read-only, fixed-size data structure.
+
+*   **Structure:** A block is composed of two main parts:
+    1.  **Block Header:** Contains technical metadata, such as:
+        *   Timestamps.
+        *   A hash of the previous block (forming the chain).
+        *   A Merkle Root (a hash of the block's data).
+        *   Other protocol-specific information.
+    2.  **Block Body:** Contains the actual data—a collection of records, such as financial transactions.
+
+*   **Immutability:** Once a block is added to the blockchain, it **cannot be modified or deleted**. To change a record, a new record representing the amendment must be created and added to a *new* block. This ensures a complete, unalterable history.
+
+#### The Merkle Tree: Efficient Data Indexing
+
+Within a block, records are structured and indexed using a **Merkle Tree**.
+
+*   **Mechanism:** It is a hash-based data structure where:
+    1.  A cryptographic hash (e.g., SHA-256) is computed for every individual record in the block.
+    2.  Hashes are then computed for pairs of these record hashes, and so on, creating a tree-like structure.
+    3.  The single hash at the top of the tree is called the **Merkle Root**, which is stored in the block header.
+*   **Purpose:** The Merkle Tree serves as a highly efficient index. It allows for quick verification of a specific record's inclusion and integrity within a block without needing to process the entire block's data.
+
+#### The Chain: Linking Blocks Together
+
+Blocks are cryptographically linked together to form a "chain."
+
+*   **Mechanism:** Each block's header contains the hash of the *entire preceding block*.
+    *   Block `N+1` contains `Hash(Block N)`.
+    *   Block `N` contains `Hash(Block N-1)`.
+*   This hash pointer creates a dependency that makes the entire history tamper-evident. Changing any part of a past block would change its hash, which would break the link to the subsequent block, invalidating the entire chain from that point forward.
+
+#### The Distributed Ledger
+
+The collection of all replicated copies of the blockchain across all nodes in the network is collectively known as the **distributed ledger**.
+
+#### The Block Addition Process
+
+1.  **Request:** A user or application initiates a transaction (a proposed change).
+2.  **Validation:** The proposed transaction is broadcast to all nodes in the network. Each node independently validates the transaction against the consensus rules and the current state of the ledger.
+3.  **Consensus:** The nodes must reach an agreement (consensus) that the proposed transactions are valid.
+4.  **Block Creation:** One node (selected via the consensus mechanism) collects a set of validated transactions, assembles them into a new block, and adds the necessary header information.
+5.  **Broadcast and Replication:** The newly created block is broadcast to all other nodes. Each node verifies the block's validity and, if correct, adds it to its local copy of the blockchain, ensuring synchronization across the network.
+
+#### The Consensus Algorithm
+
+**Consensus** is the procedure by which all peers in a blockchain network reach a common agreement on the state of the ledger. It ensures that only valid blocks are added to the chain.
+
+*   **Purpose:** To ensure data integrity and to select which node gets to create the next block.
+*   **Common Algorithms:**
+    *   **Proof of Work (PoW):** Used by Bitcoin. Computationally intensive and energy-consuming but highly secure.
+    *   **Proof of Stake (PoS):** Validators are chosen based on the amount of cryptocurrency they "stake." More energy-efficient.
+    *   **Practical Byzantine Fault Tolerance (PBFT):** Provides fast finality in permissioned networks.
+    *   **Raft:** A leader-based, Crash-Fault Tolerant (CFT) algorithm used for ordering in many permissioned networks, including the default for **Oracle Blockchain Platform**.
+The choice of algorithm is a critical design decision that impacts the network's efficiency, security, and scalability.
+
+---
+
+### Key Features of Blockchain
+
+#### 1. Immutability
+
+Immutability means that once a record is written to the blockchain, it cannot be altered or deleted.
+*   **Mechanism:** Achieved through the cryptographic chain of block hashes and reinforced by the consensus protocol.
+*   **Benefits:**
+    *   **Data Integrity:** Guarantees that the historical record is authentic and tamper-proof.
+    *   **Auditability:** Creates a perfect audit trail. The entire history of any piece of data can be traced back through time, as past states are never overwritten. This is a powerful capability for data architects and auditors.
+
+#### 2. Security
+
+Blockchain security is multi-faceted, relying on two cornerstones of modern cryptography.
+
+*   **Asymmetric (Public-Private Key) Cryptography:**
+    *   Each user has a key pair: a secret **private key** and a sharable **public key**.
+    *   Data encrypted with one key can only be decrypted by the other key in the pair.
+    *   This is used to create **digital signatures**, which prove ownership and authorize transactions without revealing the private key.
+
+*   **Cryptographic Hashing (e.g., SHA-256):**
+    *   A hash function takes any input data and produces a unique, fixed-length output (the "hash").
+    *   **Properties:**
+        *   **Deterministic:** The same input always yields the same hash.
+        *   **One-way:** It is computationally infeasible to derive the original input from its hash.
+        *   **Avalanche Effect:** The smallest change in the input results in a radically different output hash.
+    *   **Application:** Hashing is used to create the links between blocks, generate the Merkle Tree, and ensure data integrity throughout the system.
+
+#### 3. Decentralization and Resilience
+
+The distributed nature of the blockchain provides inherent security and resilience.
+*   **Data Replication:** Every node holds a copy of the ledger, eliminating any single point of failure. If one node is compromised or goes offline, the network continues to operate unaffected.
+*   **Tamper Resistance:** To successfully alter the blockchain, an attacker would need to modify a block, re-calculate its hash, and then re-calculate the hashes of *all subsequent blocks* at a rate faster than the rest of the network combined. In a large, distributed network, this is practically impossible.
+
+### Use Case Considerations: Advantages and Disadvantages
+
+#### The Bitcoin Example
+
+Bitcoin demonstrates the blockchain process effectively:
+1.  Alice proposes a transaction.
+2.  The network of peers validates that Alice has the funds (by checking the UTXO history) and is not double-spending.
+3.  A miner (a node participating in PoW) is selected to create the next block.
+4.  The miner bundles Alice's transaction with others into a new block.
+5.  The block is validated, added to the chain, and replicated across the network.
+
+#### Advantages of Blockchain Technology
+
+*   **Consistency & Integrity:** All transactions are validated by consensus, ensuring a single, shared source of truth.
+*   **Resilience & Availability:** The decentralized, replicated architecture means there is no single point of failure.
+*   **Auditability:** The immutable, chronological record provides a perfect audit trail.
+
+#### Disadvantages and Scalability Challenges
+
+Blockchain technology has inherent trade-offs that must be considered.
+
+*   **Limited Throughput:** A blockchain network can only process one block at a time. The fixed block size and the time it takes to create a block (the "block time") create a hard ceiling on the network's transactions per second (TPS). For example, the Bitcoin network can only process a few hundred transactions per block, and a block is created roughly every 10 minutes.
+*   **Scalability Issues:** In some architectures, adding more nodes does not increase TPS. It can actually *slow down* the network by increasing the time required to reach consensus.
+*   **Resource Consumption:** Consensus mechanisms, particularly Proof of Work, can be extremely resource-intensive, consuming vast amounts of CPU power and electricity.
+*   **Storage Growth:** The "append-only" nature of blockchain means the database size grows perpetually. Every change results in a new record, leading to significant storage requirements over time.
+
+These limitations mean that not every application is a good fit for blockchain. A well-designed solution must leverage the advantages while carefully mitigating the disadvantages through an appropriate choice of platform, consensus algorithm, and architecture. Oracle Blockchain Platform, for instance, uses the efficient RAFT algorithm and is designed for permissioned enterprise networks where performance and scalability can be better managed than in public, permissionless networks like Bitcoin.
+
+---
+
+## 2. Introduction to Oracle Blockchain Platform
+
+This lesson provides a deep dive into the Oracle Blockchain Platform (OBP), covering its architecture, core components, and the initial steps for configuration and setup.
+
+### Exploring Oracle Blockchain Platform
+
+#### 1. Core Concepts and Architecture
+
+**a. A Managed Hyperledger Fabric Service**
+At its core, the **Oracle Blockchain Platform (OBP)** is a fully managed, enterprise-grade **Blockchain-as-a-Service (BaaS)**. It is built upon the open-source **Hyperledger Fabric** framework. This means OBP is not a new, proprietary blockchain protocol but rather a robust, pre-assembled, and deeply integrated environment for running Hyperledger Fabric in the Oracle Cloud Infrastructure (OCI). The key value proposition is its enterprise-grade features for security, backup, upgrades, and infrastructure management, allowing developers to focus on business logic rather than complex setup.
+
+**b. Key Terminology**
+*   **Transaction/Record:** In the context of blockchain, a "transaction" often refers to the record of business data being stored, not just the action of storing it. This terminology stems from Bitcoin's origins, where records were financial transactions.
+*   **Smart Contract (Chaincode):** This is the unit of code that implements business logic on the blockchain. Written in languages like Go, Java, or Node.js, its primary function is **endorsement**—the process of validating data before it is committed to the ledger.
+*   **Endorsement:** The process of validating a proposed transaction. This is performed by peer nodes executing a smart contract.
+*   **Consensus:** The process by which all participating nodes in the network reach an agreement on the validity and order of transactions. While various protocols exist (like Proof of Work), OBP defaults to **Raft**, which provides a good balance between performance and resource utilization for permissioned enterprise networks.
+
+**c. OBP Instance Architecture**
+An OBP instance is a collection of specialized nodes working together:
+*   **Client Applications:** External systems that initiate transactions.
+*   **REST Proxy:** The primary entry point for clients. It exposes the blockchain's functionality via a convenient RESTful API, allowing applications to interact using standard HTTP requests (e.g., sending JSON payloads).
+*   **Peer Nodes:** The workhorses of the network. They host copies of the ledger and the smart contracts (chaincode). Their main job is to **endorse** individual transactions by executing chaincode and verifying their validity against the current state of the ledger.
+*   **Orderer Nodes:** These nodes perform the second level of validation. They receive endorsed transactions from peers and establish a definitive, canonical order. They validate transactions as a *group*, ensuring that the sequence of operations is valid (e.g., preventing a debit from occurring before a credit in a way that would cause an overdraft). This two-level validation (peer-level and orderer-level) is a hallmark of Hyperledger Fabric's architecture.
+*   **Certificate Authority (CA) Node:** Manages the network's security by issuing and validating the X.509 digital certificates that define the cryptographic identities of all clients, users, and nodes.
+*   **Console Node:** Provides the web-based administrative UI for managing the entire instance.
+*   **Oracle Identity Cloud Service (IDCS):** OBP integrates with IDCS for user authentication and authorization, managing who can access the platform and what actions they are permitted to perform.
+*   **Storage:** Each peer maintains its own storage, which includes the current state of the ledger (the "world state") and the immutable transaction log (the "blockchain"). Additionally, OBP can be configured to integrate with an Oracle Database (ATP/ADW) to store rich historical data for complex, flexible querying, supplementing the on-chain ledger.
+
+#### 2. Multi-Tenancy and Transaction Flow
+
+**a. Channels and Members**
+*   **Channel:** A channel is a private subnet within a blockchain network, creating an isolated ledger. A single OBP instance can manage multiple channels, allowing different groups of organizations to transact privately without exposing their data to others on the same network. Each transaction is confined to a specific channel.
+*   **Member (Organization):** A registered participant in the network. Organizations own peer nodes and participate in one or more channels. An organization can be a **Founder** (the creator of the network, hosting the central Ordering Service) or a **Participant** (an entity that joins an existing network).
+
+**b. Cross-Channel (Global) Transactions**
+While standard Hyperledger Fabric transactions are channel-specific, OBP extends this capability with **global transactions**. This feature uses the industry-standard **XA (eXtended Architecture)** two-phase commit protocol to coordinate atomic transactions across multiple channels. This allows for complex business processes where a transaction must either succeed or fail as a single unit across different ledgers.
+
+**c. The Complete Transaction Flow**
+1.  **Submission:** A client sends a transaction request (e.g., a JSON payload) to the **REST Proxy**.
+2.  **Authentication:** The REST Proxy interacts with the **CA Node** and **IDCS** to authenticate and authorize the client's request based on their digital certificates and permissions.
+3.  **Endorsement:** The request is forwarded to the relevant **Peer Nodes**. Each peer executes the corresponding chaincode to simulate the transaction and produces a signed endorsement if the transaction is valid. The number of required endorsements is defined by the channel's endorsement policy.
+4.  **Ordering:** The client collects the endorsements and submits the package to the **Orderer Nodes**. The orderers establish a definitive sequence for this and other transactions, validating them as a group.
+5.  **Commitment:** The orderers package the ordered transactions into a new block and broadcast it to all peers on the channel.
+6.  **Ledger Update:** Each peer validates the block and its transactions one final time before appending it to its local copy of the ledger. The world state is updated.
+7.  **Confirmation:** Only after the block is successfully committed to the ledger is the transaction considered final. The client receives a confirmation of success.
+
+#### 3. Smart Contract (Chaincode) Deployment
+
+Deploying business logic onto the OBP involves packaging the smart contract code (Go, Java, Node.js) into a `.zip` archive and deploying it through the console.
+
+*   **Quick Deployment:** A simplified, single-click process suitable for development or simple topologies. It automatically installs the contract on all peers and enables the REST proxy with default settings.
+*   **Advanced Deployment:** A multi-step process for production environments. It allows for granular control over:
+    *   **Endorsement Policies:** Defining which organizations must sign off on a transaction.
+    *   **Node Selection:** Specifying which peers will host the chaincode.
+    *   **REST Proxy Enablement:** Configuring the API as a separate, deliberate step.
+*   **Upgrade:** A process for deploying a new version of an existing chaincode, for bug fixes or feature enhancements.
+
+---
+
+### Demo: Oracle Blockchain Platform Instance
+
+This section provides a structured walkthrough of the process of creating a blockchain network consisting of a "Founder" and a "Participant" organization, mirroring the demonstration.
+
+#### Part 1: Creating the Founder Instance
+
+1.  **Navigation:** In the OCI Console, navigate to `Developer Services > Blockchain Platform`.
+2.  **Creation:** Click `Create Blockchain Platform` and select the appropriate compartment.
+3.  **Configuration:**
+    *   **Display Name:** Provide a descriptive name (e.g., `Founder-Ora001`).
+    *   **Platform Role:** This is the most critical setting. Select **"Create a new network"**. This designates the instance as the Founder, meaning it will host the network's central Ordering Service.
+    *   **Platform Version:** Select the desired version of Hyperledger Fabric.
+    *   **Edition:** Choose the edition (e.g., Standard Edition).
+4.  **Deployment:** After clicking `Create`, OCI automates the provisioning of all necessary components. This process is lengthy (15-20 minutes) as it orchestrates a complex set of resources.
+5.  **Accessing the Console:** Once the instance is created, navigate to its `Service Console`. This web-based UI is the central point for managing the blockchain network.
+
+#### Part 2: Exploring the Founder's Service Console
+
+The Service Console provides a comprehensive view of the network components and their status.
+
+*   **Dashboard Tab:** The main landing page, providing a high-level summary of network health, including the number of peer nodes, channels, and deployed chaincodes.
+*   **Nodes Tab:** Lists all the technical components of your instance. For a Founder, this includes:
+    *   **Peer Nodes:** Your organization's nodes that host ledgers and execute chaincode.
+    *   **Orderer Nodes:** The nodes that form the consensus mechanism (Ordering Service).
+    *   **Certificate Authority (CA):** The node responsible for issuing cryptographic identities.
+    *   **REST Proxy:** The node that provides RESTful API access to your chaincode.
+    Each node has a context menu for actions like Start/Stop, configuration, and viewing logs. Advanced configuration options allow for performance tuning (e.g., connection timeouts).
+*   **Channels Tab:** Manages the ledgers. A default channel is created, but typically custom channels are made for specific business processes. This tab allows you to create channels, join peers to them, and manage channel policies and Access Control Lists (ACLs).
+*   **Chaincodes Tab:** Used for deploying and managing smart contracts (chaincode) on the network.
+*   **Development Tools Tab:** Provides resources for developers, including links to download VS Code extensions, SDKs for various languages (Go, Node.js, Java), and sample chaincode projects that can be installed for learning purposes.
+
+#### Part 3: Creating and Joining the Participant Instance
+
+1.  **Creation:** Repeat the creation process, but with a different configuration:
+    *   **Display Name:** Give it a distinct name (e.g., `Part-Ora001`).
+    *   **Platform Role:** Select **"Join an existing network"**. This designates the instance as a Participant. It will not have its own Ordering Service and will only contain Peer nodes.
+2.  **Joining Process (The Handshake):** The core task is to establish a trust relationship between the Founder and the Participant. This involves a cryptographic exchange.
+    *   **Step 1 (Participant -> Founder):**
+        *   On the **Participant's** Service Console, go to the `Network` tab and click `Export Certificates`.
+        *   Save the resulting `.json` file. This file contains the public identity certificates of the Participant organization.
+    *   **Step 2 (Founder's Action):**
+        *   On the **Founder's** Service Console, go to the `Network` tab and click `Add Organization`.
+        *   Upload the participant's certificate `.json` file. This registers the Participant's identity with the network.
+    *   **Step 3 (Founder -> Participant):**
+        *   On the **Founder's** Service Console, go to the `Network` tab, click the "More Actions" menu, and select `Export Orderer Settings`.
+        *   Save the resulting `.json` file. This file contains the network addresses and certificates for the Ordering Service.
+    *   **Step 4 (Participant's Action):**
+        *   On the **Participant's** Service Console, you will be prompted to `Upload Orderer Settings`.
+        *   Upload the orderer settings `.json` file from the Founder. This teaches the Participant where the central Ordering Service is and how to securely connect to it.
+
+3.  **Result:** The `Network` tab on both consoles will now show two organizations: the Founder and the Participant. They are now part of the same consortium and can proceed to join common channels and transact with each other.
+
+---
+
+### Practices for Lesson 2: Configure Access and Set Up Channels on Oracle Blockchain Platform
+
+This is a practical guide to the first essential setup tasks after provisioning a shared OBP instance, as would be done in a training environment.
+
+#### Part A: Initial Login and Password Change
+
+1.  **Access:** Navigate to the provided OBP instance URL.
+2.  **Credentials:** Log in using the username and password provisioned for the exercise.
+3.  **Password Reset:** On the first login, you will be prompted to change your password. Provide the old password and set a new one that conforms to the security policy.
+
+#### Part B: Navigating the Console and User Isolation
+
+*   **Shared Environment:** In a training context, multiple users (e.g., `ora001`, `ora002`) may share a single Founder instance.
+*   **Isolation Strategy:** To prevent users from interfering with each other's work, each user will create and operate within their own unique **channel**. This isolates their chaincode deployments, ledger data, and transactions.
+
+#### Part C: Creating a User-Specific Channel
+
+1.  **Navigate to Channels:** From the OBP Service Console, go to the `Channels` tab.
+2.  **Create New Channel:** Click the `Create New Channel` button.
+3.  **Channel Naming Convention:** To ensure uniqueness, use a specific naming convention. For example: `hmgamechannel<your_user_id>`. If your user ID is `ora001`, the channel name would be `hmgamechannelora001`. This is a critical step in a shared environment.
+4.  **Add Peers:** In the configuration wizard, you must associate peers with the channel. Select the available peer nodes (e.g., `peer0`, `peer1`) to join the new channel. These peers will now host a copy of this channel's ledger.
+5.  **Submit:** Confirm the configuration. The OBP will send the request to the Ordering Service, which creates the genesis block for the new channel and distributes it to the selected peers.
+6.  **Verification:** The new channel will appear in the channel list. Clicking on it will show its details, including the joined peers, but it will have no deployed chaincodes yet. This channel is now a private, isolated environment ready for the next step: deploying and testing smart contracts.
+
+---
+
+## 3. Creating and Automating Smart Contracts
+
+This lesson provides a deep technical dive into the creation of smart contracts (chaincode) for the Oracle Blockchain Platform (OBP). We will explore the development lifecycle, the core APIs, and the use of automation tools like the App Builder.
+
+### Creating Smart Contracts
+
+#### 1. The Role and Execution Environment of a Smart Contract
+
+A smart contract, also known as **chaincode** in Hyperledger Fabric, is the unit of code that implements the business logic on a blockchain network. It resides on the peer nodes and is responsible for validating transactions before they are committed to the ledger.
+
+*   **Execution:** When a client submits a transaction request, the peer node executes the relevant chaincode function to process it.
+*   **World State Database:** To facilitate chaincode operations, each peer node runs an embedded, in-memory key-value database called the **World State**.
+    *   **Function:** It represents the *current* state of the blockchain ledger for a specific channel and acts as a transient cache for ongoing operations. It provides the chaincode with fast, convenient access to read and write data during transaction execution.
+    *   **Implementation:** OBP uses **Berkeley DB** as the world state database. It maintains one logical table per channel that a peer has joined. Data is stored as key-value pairs, where the value can be simple text or a JSON object.
+*   **Commitment to Ledger:** Data written to the world state is temporary. Only after the transaction is fully endorsed and ordered through the consensus process is the data permanently committed to the immutable blockchain ledger (the physical store). Optionally, this data can also be pushed to an off-chain **History Database** (e.g., Oracle ATP/ADW) for more flexible and complex historical querying.
+
+#### 2. The Chaincode Shim API: A Language-Agnostic Overview
+
+To implement the validation logic, developers use the **Chaincode Shim API**. OBP supports multiple languages for chaincode development, including **Go, Java, and JavaScript/TypeScript (via Node.js)**.
+
+The following is a language-agnostic overview of the core API concepts, presented as pseudocode. The exact syntax will vary by language, but the structure remains consistent. The API is centered around two primary objects: `ChaincodeBase` and `ChaincodeStub`.
+
+**a. The `ChaincodeBase` Object (Lifecycle Management)**
+
+This object manages the lifecycle of the smart contract.
+*   `Init(stub ChaincodeStub)`: Called once when the chaincode is first instantiated or upgraded on a channel. It's used for setting up the initial state.
+*   `Invoke(stub ChaincodeStub)`: The main entry point for processing transactions. It is called every time a client sends a request to change the state of the ledger.
+*   `Query(stub ChaincodeStub)`: A dedicated entry point for read-only requests. It allows clients to query the ledger state without submitting a transaction.
+*   `Start()`: The method that starts the chaincode, making it ready to receive `Init` and `Invoke` calls.
+
+**b. The `ChaincodeStub` Object (Data and Business Logic)**
+
+This object provides the chaincode with access to the ledger and transaction context. It is passed as an argument to the `Init`, `Invoke`, and `Query` methods.
+*   **Parameter Handling:** Methods to retrieve parameters passed in the client's request.
+*   **World State Interaction:**
+    *   `getState(key)`: Retrieves a value from the world state database.
+    *   `putState(key, value)`: Writes a new key-value pair to the world state.
+    *   `deleteState(key)`: Deletes a key-value pair from the world state. (Note: This affects the in-memory world state. The transaction log itself remains immutable).
+*   **Event Handling:** `setEvent(name, payload)`: Publishes an event that client applications can subscribe to.
+*   **Business Logic:** This is where developers implement custom functions to handle the specific logic of their application.
+
+#### 3. Smart Contract Lifecycle and Invocation
+
+1.  **Installation and Startup:** The chaincode is installed on peer nodes. The `Start()` method is called, making the chaincode active.
+2.  **Initialization:** An administrator calls the `Init` function once to set up the initial state of the contract on a channel (e.g., creating initial assets, setting configuration parameters). This data is written to the world state.
+3.  **Invocation/Querying:** Clients send requests to the blockchain network.
+    *   If the request is a state-changing transaction, the `Invoke` method is called.
+    *   If the request is a read-only query, the `Query` method is called.
+    These methods can be called multiple times.
+
+**a. Dissecting the `Invoke` Method**
+
+The `Invoke` method is the heart of the transaction processing logic.
+1.  **Get Action:** The first step is to determine what the client wants to do. The client's request includes an "action" name (e.g., "createPlayer", "makeGuess"). The `stub.getFunction()` method is used to retrieve this action name.
+2.  **Dispatch Logic:** The chaincode uses conditional logic (e.g., `if-else` or `switch` statements) to route the request to the appropriate business logic function based on the action name.
+3.  **Execute Business Logic:** The custom business methods are called. These methods:
+    *   Retrieve any additional parameters from the client's request.
+    *   Interact with the world state using `getState()` and `putState()` to read existing data and write new data.
+    *   Perform all necessary validations.
+4.  **Return Response:** The method concludes by returning a response object indicating the success or failure of the transaction.
+
+**b. Handling Requests and Responses**
+
+*   **Request Structure:** A typical REST request to the OBP REST Proxy includes:
+    *   The name of the chaincode to execute.
+    *   An array of arguments (`args`), where the first element is the **action name**.
+    *   Subsequent elements are the parameters for that action (can be simple values or a JSON string).
+    *   Optional flags like `sync: true` for synchronous invocation.
+*   **Response Handling:** The chaincode must construct a response using the Shim API.
+    *   **Success:** `shim.success(payload)` returns a success status. The `payload` can contain data to be sent back to the client, like a transaction ID or query results.
+    *   **Error:** `shim.error(description, payload)` returns a failure status with a custom error message.
+    *   **Error Handling:** It is best practice to use `try/catch` blocks (or the equivalent in the chosen language) to handle unexpected errors and return a meaningful error response. An uncaught exception will result in a generic system error.
+
+**c. Event Publishing and Subscribing**
+Chaincode can publish events using `stub.setEvent(eventName, payload)`. Client applications can subscribe to these events via the REST API to receive real-time notifications when specific on-chain actions occur.
+
+---
+
+### Automate Smart Contract Development Using App Builder
+
+The **Blockchain App Builder** is a tool that accelerates the development of smart contracts for Hyperledger Fabric, supporting **Go** and **TypeScript**. It automates the generation of boilerplate code, allowing developers to focus on the business logic.
+
+#### 1. App Builder Setup
+
+*   **Installation:** The App Builder can be installed as a **Visual Studio Code extension** or as a command-line interface (CLI) tool via `npm`.
+*   **Prerequisites:** A development environment requires Docker, Node.js/npm, and Git. For Go development, the Go language toolkit is also needed.
+
+#### 2. The Scaffolding Process
+
+1.  **Create a Specification File:** The process starts with a specification file, typically written in **YAML** or JSON. This file defines the data model (assets) and the operations of the smart contract.
+    *   **Assets:** Define the business objects to be managed on the blockchain (e.g., `player`, `game`).
+    *   **Properties:** For each asset, define its properties, including data type (`string`, `number`), validation rules (e.g., `min`, `max`, `pattern`), and whether it is a mandatory or unique field.
+    *   **Behaviors (Methods):** Specify the standard CRUD methods (`Create`, `getByID`, `Update`, `Delete`) and any custom methods required by the application.
+2.  **Generate the Project (Scaffolding):** Use the App Builder (via VS Code or CLI) to generate the chaincode project from the specification file.
+    *   `ochain init --spec <your_spec_file.yml> --language <go|typescript>`
+    *   This command generates a full project structure, including:
+        *   A `main.go` or `main.ts` file (the entry point).
+        *   A `controller` file containing the stub methods for all defined assets and custom functions.
+        *   A `model` file containing helper functions for interacting with the world state.
+
+#### 3. Deployment and Testing with App Builder
+
+The App Builder CLI (`ochain`) simplifies deployment and testing.
+
+*   **Local Deployment:** For rapid testing, you can deploy the chaincode to a local Hyperledger Fabric network managed by the App Builder.
+    *   `ochain deploy ...`
+*   **Remote Deployment to OBP:**
+    1.  **Create Connection Profile:** Download the "development package" and "admin credentials" from the OBP console. Combine them to create a connection profile that allows the CLI to authenticate with your remote OBP instance.
+    2.  **Login:** `ochain login -u <user> -p <password> -c <connection_profile.json>`
+    3.  **Deploy:** `ochain deploy -c <connection_profile.json> --channel <channel_name> ...`
+*   **Testing:** The CLI can be used to invoke transactions and query the ledger.
+    *   `ochain invoke ...`
+    *   `ochain query ...`
+    Alternatively, testing can be done by sending REST requests directly to the OBP REST Proxy using tools like Postman or `curl`.
+
+---
+
+### Practices for Lesson 3: Implement Chaincodes for OBP (Part 1 & 2)
+
+This practice guides you through creating a "Hangman" game chaincode using the App Builder in a provided remote development environment.
+
+#### Part 1: Setting up the Development Environment
+
+1.  **Access Environment:** Log into the provided Oracle Linux remote desktop environment, which has VS Code and the OBP App Builder extension pre-installed.
+2.  **Launch VS Code:** Open the Visual Studio Code application.
+3.  **Activate OBP Extension:** Click the Oracle logo in the VS Code activity bar to activate the Blockchain App Builder extension panel.
+
+#### Part 2: Scaffolding and Implementing the Chaincode
+
+1.  **Create Project Structure:**
+    *   Create a project directory on the remote desktop (e.g., `~/Labs/HMGame`).
+2.  **Create the Specification File:**
+    *   In the App Builder panel, under `Specifications`, click `Create New Specification`.
+    *   Name it `HMGame.yml`.
+    *   An empty YAML file will be created. Copy the provided YAML content, which defines three assets (`player`, `game`, `guess`) and several custom methods (`startNewGame`, `makeGuess`, `revealWord`), and paste it into this file.
+    *   **Save the file.** This is a critical step.
+3.  **Scaffold the Chaincode:**
+    *   In the App Builder panel, under `Chaincodes`, click `Create New Chaincode`.
+    *   Name it `HMGameChaincode`.
+    *   Set the language to **Go**.
+    *   Select the `HMGame.yml` specification file you just created.
+    *   Provide a Go module path (e.g., `hmgame.com`).
+    *   Click `Create`. The App Builder will generate the entire Go project structure based on the YAML file.
+4.  **Implement the Business Logic:**
+    *   Open the generated controller file: `sources/HMGameChaincode.controller.go`.
+    *   You will see empty stub methods for all the functions defined in the YAML file. The next step is to fill these in with the actual game logic.
+5.  **Modify the `Init` Function:**
+    *   The `Init` function is called when the chaincode is first instantiated.
+    *   Modify the generated `Init` function to accept a list of words as an argument.
+    *   Add logic to:
+        *   If no word list is provided, use a hardcoded default list.
+        *   Marshal the word list into a JSON byte array.
+        *   Save this byte array to the world state using the key "words" via `stub.putState()`.
+        *   Call the `startNewGame()` function to initialize the first game.
+6.  **Make Internal Functions Private:**
+    *   In Go, a function is public if its name starts with an uppercase letter and private if it starts with a lowercase letter.
+    *   The business logic requires that functions like `createGame` and `getGameById` should not be directly callable by clients (to prevent cheating).
+    *   Rename these generated functions to start with a lowercase letter (e.g., `CreateGame` becomes `createGame`).
+7.  **Implement Custom Methods:**
+    *   Fill in the logic for `startNewGame`, `makeGuess`, and `revealWord` by copying the provided code snippets.
+    *   The `startNewGame` function will:
+        *   Retrieve the word list from the world state.
+        *   Randomly select a word.
+        *   Create a new `game` asset object with the selected word and an initial "masked" state (e.g., `*******`).
+        *   Save this new game object to the world state.
+
+After completing these steps, the chaincode is ready to be packaged, deployed to your channel on OBP, and tested.
+
+---
+
+## 4. Accessing OBP and Implementing Tokens
+
+This lesson covers the primary methods for interacting with the Oracle Blockchain Platform (OBP), including its REST API and SDKs, as well as advanced features like tokenization and the Rich History Database.
+
+### Accessing Oracle Blockchain Platform
+
+There are two primary technical mechanisms for applications to interact with OBP:
+
+1.  **REST API via the REST Proxy:** This is the most common and convenient method. OBP exposes its functionality through a built-in REST Proxy, allowing any REST-capable application to perform transactions, queries, and administrative tasks using standard HTTP protocols.
+2.  **Hyperledger Fabric SDK:** For applications that require lower-level interaction or for migrating existing Hyperledger Fabric applications, the native SDKs (available for Java, Node.js, Go) can be used to interact directly with the Fabric components, bypassing the REST Proxy.
+
+#### The OBP REST API
+
+The REST API is the main gateway for programmatic access to the blockchain network.
+
+*   **Purpose:**
+    *   Perform transactions on the blockchain.
+    *   Query the state of the ledger.
+    *   Perform administrative actions (e.g., manage channels, install chaincode).
+*   **Authentication:** The REST Proxy interacts with the platform's Certificate Authority (CA) and Oracle Identity Cloud Service (IDCS) to authenticate and authorize the calling entity.
+
+**a. Query and Transaction APIs**
+
+The APIs for interacting with chaincode are split into two primary endpoints, both of which counter-intuitively use the `POST` HTTP method.
+
+*   **Endpoint Structure:** `https://<OBP_URL>/restproxy/api/v2/channels/<channel_name>/<endpoint>`
+
+*   **Chaincode Queries Endpoint:**
+    *   **URL:** `.../chaincodeQueries`
+    *   **Behavior:** When a function is invoked via this endpoint, the chaincode is executed on a single peer node, but the **endorsement and consensus process is not triggered**. The ledger is **not** modified.
+    *   **Use Case:** Intended for read-only operations that query the ledger state. However, the platform does not prevent you from calling a state-changing function here; the function will execute, but its changes will be discarded.
+    *   **Response:** The call is synchronous and returns an immediate response containing the data returned by the chaincode function.
+
+*   **Transactions Endpoint:**
+    *   **URL:** `.../transactions`
+    *   **Behavior:** Invoking a function via this endpoint initiates the full Hyperledger Fabric transaction flow: endorsement, ordering, and commitment. This is the only way to modify the state of the ledger.
+    *   **Response (Asynchronous Model):** The initial `POST` request is asynchronous. It does not return the result of the chaincode function. Instead, it immediately returns a **Transaction ID**.
+    *   **Getting the Result:** To find out the outcome of the transaction, the client must make a subsequent `GET` request to the `.../transactions/<transaction_ID>` endpoint. This asynchronous pattern is necessary because the consensus process can take time, especially in a large, distributed network.
+
+*   **Request Body:** The JSON payload for both endpoints typically includes:
+    *   `chaincode`: The name of the chaincode to invoke.
+    *   `args`: An array of strings where the first element is the function/action name, and subsequent elements are the parameters for that function.
+
+**b. Administrative APIs**
+
+OBP also provides a comprehensive set of REST APIs for administrative tasks, accessed via the `.../console/admin/api` endpoint. These allow for programmatic management of the platform, including:
+*   Installing and instantiating smart contracts.
+*   Creating and managing channels and organizations.
+*   Querying node health and network statistics.
+
+**c. Integration with Other Systems**
+The RESTful nature of OBP makes it highly interoperable. For complex, multi-system workflows, **Oracle Integration Cloud (OIC)** is the recommended solution. OIC can act as a central hub, orchestrating business processes that involve OBP and other enterprise applications (e.g., Oracle SaaS, custom applications), using their respective REST APIs to communicate.
+
+---
+
+### Demo: How the REST Interface/Proxy Works
+
+This demonstration clarifies the distinct behaviors of the `chaincodeQueries` and `transactions` endpoints using a tool like Postman.
+
+*   **Setup:** Use a REST client like Postman. Configure Basic Authentication with the username and password for your OBP instance.
+
+*   **Scenario 1: Calling a State-Changing Function via the `queries` Endpoint**
+    1.  **Request:** Send a `POST` request to `.../restproxy/api/v2/channels/hmgamechannel.../chaincodeQueries`.
+    2.  **Body:** Use a payload to invoke the `makeAGuess` function (e.g., guessing the letter "S").
+    3.  **Result:** The API returns a synchronous success message, e.g., "You have successfully guessed the letter S."
+    4.  **Verification:** Immediately make another call via the `queries` endpoint to a read-only function like `getGameHistoryById`.
+    5.  **Observation:** The history will **not** reflect the guess of "S". **The ledger was not updated** because the endorsement process was bypassed.
+
+*   **Scenario 2: Calling the Same Function via the `transactions` Endpoint**
+    1.  **Request:** Send a `POST` request to `.../restproxy/api/v2/channels/hmgamechannel.../transactions`.
+    2.  **Body:** Use the same `makeAGuess` payload.
+    3.  **Result:** The API immediately returns a JSON object containing only a `transactionId`.
+    4.  **Get Status:** Make a new `GET` request to `.../transactions/<transactionId>`.
+    5.  **Observation:** This second call returns the actual result from the chaincode, confirming the successful guess.
+    6.  **Verification:** Query the game history again. This time, the state will be updated to include the letter "S", confirming that the transaction was successfully committed to the ledger.
+
+**Conclusion:** The `chaincodeQueries` endpoint is for read-only operations. The `transactions` endpoint is for write operations and follows an asynchronous request/response pattern.
+
+---
+
+### Oracle Blockchain Platform Security
+
+OBP security is built on a layered architecture integrating with core Oracle Cloud identity services.
+
+#### 1. Security Architecture and IDCS Integration
+
+*   **IDCS Registration:** Every OBP instance is automatically registered as an application within **Oracle Identity Cloud Service (IDCS)**.
+*   **User and Role Management:** IDCS is the central authority for managing users, groups, and roles. The OBP application in IDCS has a set of predefined roles that are mapped to permissions.
+*   **Permissions:** Permissions are defined for OBP resources, such as `blockchain-platforms` (allowing create, update, inspect, delete) and `blockchain-platform-work-requests`.
+*   **Predefined Roles:**
+    *   `ADMIN`: Full administrative control over the OBP instance.
+    *   `USER`: Read-only access to query OBP objects.
+    *   `CA_USER`: Permission to enroll other users.
+    *   `REST_CLIENT`: Permission to make calls through the REST Proxy, required for any application performing transactions.
+    The user who creates the OBP instance is automatically granted the `ADMIN`, `CA_USER`, and `REST_CLIENT` roles.
+
+#### 2. Authentication and Authorization
+
+*   **Authentication:** The process of verifying who a caller is.
+    *   **Basic Authentication:** The client provides a username and password with each REST call. The REST Proxy validates these credentials against IDCS.
+    *   **OAuth 2.0:** A more secure, token-based approach.
+        1.  The client first authenticates directly with IDCS using its credentials.
+        2.  IDCS issues a temporary, digitally signed **access token** (Bearer Token).
+        3.  The client then includes this access token in the `Authorization` header of its calls to the OBP REST Proxy. The proxy can validate the token's signature without needing to handle the user's raw credentials.
+
+*   **Authorization:** The process of determining what an authenticated caller is allowed to do.
+    *   After authenticating the user (via Basic Auth or OAuth token), OBP checks the roles assigned to that user in IDCS to determine if they have the necessary permissions for the requested action.
+
+#### 3. Fine-Grained Access Control (Programmatic)
+
+In addition to declarative role-based access control in IDCS, OBP provides a library for implementing **fine-grained access control directly within your chaincode**.
+
+*   **Access Control Lists (ACLs):** An ACL is a named entity that defines permissions for a group of identities. It consists of:
+    *   **Identity Patterns:** Rules to identify users based on their X.509 certificate attributes (e.g., `subject.cn` for common name, `subject.ou` for organizational unit, or custom attributes).
+    *   **Permitted Actions:** A list of chaincode functions that the identities matching the pattern are allowed to execute (e.g., `read`, `update`, or custom function names).
+*   **Implementation:**
+    *   Within the `Init` method of a chaincode, developers can use the `ChaincodeACL` library to programmatically create and register custom ACLs.
+    *   This allows for dynamic, context-aware authorization logic. For example, you can create an ACL that only allows users from the "Finance" OU to execute the `approvePayment` function.
+
+---
+
+### Implementing Tokens
+
+OBP includes a specialized framework for creating and managing **tokens**, which are digital representations of real-world assets.
+
+#### 1. Token Concepts and Roles
+
+*   **Token:** A digital asset that belongs to an account/owner. OBP currently focuses on **fungible tokens**, which are interchangeable and divisible.
+*   **Token Roles:**
+    *   **Admin:** The creator and administrator of the token application.
+    *   **Owner:** A user who holds a balance of the token.
+    *   **Minter:** A role with permission to create (mint) new tokens.
+    *   **Burner:** A role with permission to destroy (burn) tokens.
+    *   **Holder:** A generic role for token owners.
+*   **Transaction Roles:**
+    *   **Payer:** The entity offering tokens for payment.
+    *   **Payee:** The entity accepting tokens.
+    *   **Notary:** An optional but recommended role. A notary can temporarily "reserve" tokens during a transaction to prevent double-spending or conflicts in complex, multi-party scenarios.
+
+#### 2. Scaffolding a Token Project
+
+The App Builder can be used to scaffold token-based chaincode.
+1.  **Specification File:** In the YAML spec file, define an asset with `type: token`.
+2.  **Behaviors:** Specify token behaviors like `divisible`, `mintable`, `burnable`, and the roles associated with them (e.g., who the `minter` is).
+3.  **Generation:** The App Builder generates a project with a specialized **Token SDK** that provides high-level convenience methods.
+
+#### 3. The Token SDK
+
+The generated code includes two key objects for token manipulation:
+*   **Account Object:** Provides methods for account management (`create`, `get`, `getBalance`).
+*   **Token Object:** Provides methods for token lifecycle management (`mint`, `transfer`, `burn`, `hold`).
+
+#### 4. Ethereum Interoperability
+
+OBP provides a compatibility layer to interact with and even host Ethereum smart contracts.
+*   **Mechanism:** The **Burrow EVM** (Ethereum Virtual Machine) can run inside an OBP peer node. This allows OBP to execute chaincode written in Ethereum-native languages like Solidity.
+*   **Capabilities:**
+    *   Invoke transactions on external Ethereum networks via the REST API.
+    *   Deploy and run EVM-based smart contracts directly on OBP peer nodes.
+
+---
+
+### Working with Rich History Database
+
+The **Rich History Database** is an optional but powerful feature that mirrors blockchain data into an external Oracle Database (ATP or ADW) for advanced analytics and reporting.
+
+#### 1. Architecture and Purpose
+
+*   **Function:** It serves as an off-chain data source, optimized for complex SQL queries that are inefficient or impossible to run against the on-chain ledger directly.
+*   **Integration:** Can be used with tools like Oracle Analytics Cloud (OAC) for data visualization and business intelligence.
+
+#### 2. Database Schema
+
+For each channel configured to use Rich History, a set of tables is created in the Oracle Database. The table names are prefixed with the OBP instance and channel name.
+*   **State Table (`..._state`):** A replica of the current World State, showing the latest value for each key.
+*   **History Table (`..._hist`):** Contains the full transaction history for each key, allowing you to trace its value over time.
+*   **Transaction Details Table (`..._more`):** Contains detailed metadata about each committed transaction, such as the submitter's identity and timestamp.
+*   **JSON Support:** The database tables are designed to handle JSON data stored on the blockchain, allowing you to query directly into JSON attributes using standard SQL/JSON syntax (e.g., `value_json.Player`).
+
+#### 3. Private Data Collections
+
+*   **Concept:** Hyperledger Fabric allows organizations on a channel to maintain **private data** that is not shared with all channel members. Each peer maintains a separate "private state" database alongside the shared "world state."
+*   **Rich History Integration:** When enabled, the Rich History feature can also capture this private data. It stores it in a *separate* set of history tables, ensuring that private data remains isolated from the shared channel data even in the off-chain analytics database.
+
+#### 4. Access Control
+
+Access to configure and manage the Rich History feature is controlled by specific OBP roles:
+*   `ConfigureRichHistoryChannel`: Allows a user to enable/disable the history feature for a channel.
+*   `GetRichHistoryChannelStatus`: Allows a user to view the replication status.
+*   `RichHistoryChannelConfig`: Allows a user to modify the configuration.
