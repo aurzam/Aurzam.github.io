@@ -11,9 +11,9 @@ tags:
   - personal
   - Who am i
 ---
-## About Me
+Hola Friends🥀 
 
-Hello! My name is Samira. I am an Electronics and Communication Engineering (ECE) graduate and a cybersecurity enthusiast with a strong passion for offensive security.
+My name is Samira. I am an Electronics and Communication Engineering (ECE) graduate and a cybersecurity enthusiast with a strong passion for offensive security.
 
 I am interested in a wide range of cybersecurity domains, including reverse engineering, Digital Forensics and Incident Response (DFIR), Security Operations Centers (SOC), penetration testing, automotive security, bug hunting, and red teaming. My primary focus is on bug hunting and red teaming, where I enjoy identifying vulnerabilities and understanding how complex systems can be secured.
 
