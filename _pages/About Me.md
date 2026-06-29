@@ -3,6 +3,7 @@ title: "About Me"
 date: "2026-01-01"
 tags:
 bookmark: true
+order: 4
 thumbnail: "/assets/img/thumbnail/profile.jpg"
 tags:
   - about
