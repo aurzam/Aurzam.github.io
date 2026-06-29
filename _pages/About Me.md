@@ -11,8 +11,11 @@ tags:
   - personal
   - Who am i
 ---
-Hello 👋
+## About Me
 
-I’m Samira Gabr, a Cybersecurity Engineer passionate about reverse engineering, automotive security, penetration testing, and bug hunting.
-This blog is where I share my learning journey, security research, write-ups, tools, and experiences in cybersecurity.
-I enjoy exploring how systems work, discovering vulnerabilities, and continuously learning new security techniques.
+Hello! My name is Samira. I am an Electronics and Communication Engineering (ECE) graduate and a cybersecurity enthusiast with a strong passion for offensive security.
+
+I am interested in a wide range of cybersecurity domains, including reverse engineering, Digital Forensics and Incident Response (DFIR), Security Operations Centers (SOC), penetration testing, automotive security, bug hunting, and red teaming. My primary focus is on bug hunting and red teaming, where I enjoy identifying vulnerabilities and understanding how complex systems can be secured.
+
+This blog is where I document my learning journey, security research, technical write-ups, tools, projects, and experiences in cybersecurity.
+I enjoy exploring how systems work, analyzing software and hardware, discovering security flaws, and continuously expanding my knowledge of offensive security techniques. My goal is to keep learning, share practical insights with the community, and contribute to making technology more secure.
